@@ -1,9 +1,6 @@
 import os
 import re
 import pandas as pd
-import sys
-
-sys.stdout.reconfigure(encoding='utf-8')
 
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -11,15 +8,15 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score
 
 
-print(" Loading Fake News Detector...")
+print("Loading Fake News Detector...")
 file_name = "news.csv"
 
 if not os.path.exists(file_name):
-    print(f" '{file_name}' not found!")
+    print(f"'{file_name}' not found!")
     exit()
 
 data = pd.read_csv(file_name)
-print(f" Dataset loaded: {len(data)} rows")
+print(f"Dataset loaded: {len(data)} rows")
 
 
 data = data.dropna(subset=["text", "label"])
@@ -31,7 +28,7 @@ data["label"] = data["label"].map({"REAL": 1, "FAKE": 0})
 data = data.drop_duplicates(subset="text")
 
 
-print("\n Label Distribution BEFORE balancing:")
+print("\nLabel Distribution BEFORE balancing:")
 print(data["label"].value_counts())
 
 
@@ -48,7 +45,7 @@ data = pd.concat([
 
 data = data.sample(frac=1, random_state=42).reset_index(drop=True)
 
-print("\n📊 Label Distribution AFTER balancing:")
+print("\nLabel Distribution AFTER balancing:")
 print(data["label"].value_counts())
 
 
@@ -57,6 +54,7 @@ def clean_text(text):
     text = re.sub(r"http\S+|www\S+", "", text)
     text = re.sub(r"\s+", " ", text)
     return text.strip()
+
 
 data["text"] = data["text"].apply(clean_text)
 
@@ -87,7 +85,7 @@ model.fit(X_train_vec, y_train)
 y_pred = model.predict(X_test_vec)
 accuracy = accuracy_score(y_test, y_pred)
 
-print(f"\n✅ Accuracy: {accuracy:.2%}")
+print(f"\nAccuracy: {accuracy:.2%}")
 print("="*60)
 
 
@@ -99,28 +97,28 @@ def predict_news(news_text):
     confidence = max(probability)
 
     if prediction == 1:
-        return f"📰 REAL (confidence: {confidence:.1%})"
+        return f"REAL (confidence: {confidence:.1%})"
     else:
-        return f"🚨 FAKE (confidence: {confidence:.1%})"
+        return f"FAKE (confidence: {confidence:.1%})"
 
-#
-print("\n🧪 Testing:")
+
+print("\nTesting:")
 print(predict_news("ISRO launches new satellite successfully"))
 print(predict_news("Aliens invade India and control government"))
 print(predict_news("Government announces new education policy"))
 
 
-print("\n💬 Enter news (type 'quit' to exit):")
+print("\nEnter news (type 'quit' to exit):")
 
 while True:
-    user_input = input("\n🗞️ News: ").strip()
+    user_input = input("\nNews: ").strip()
 
     if user_input.lower() in ['quit', 'exit', 'q']:
-        print("👋 Exiting...")
+        print("Exiting...")
         break
 
     if not user_input:
-        print("⚠️ Enter something")
+        print("Enter something")
         continue
 
-    print("🎯", predict_news(user_input))
+    print(predict_news(user_input))
